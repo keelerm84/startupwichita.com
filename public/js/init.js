@@ -1,13 +1,9 @@
-(function(angular) {
-    'use strict';
+'use strict';
 
-    angular.element(document).ready(function() {
-        //Fixing facebook bug with redirect
-        if (window.location.hash === '#_=_') {
-            window.location.hash = '#!';
-        }
+angular.element(document).ready(function() {
+    //Fixing facebook bug with redirect
+    if (window.location.hash === '#_=_') window.location.hash = '#!';
 
-        //Then init the app
-        angular.bootstrap(document, ['startupwichita']);
-    });
-})(window.angular);
+    //Then init the app
+    angular.bootstrap(document, ['mean']);
+});

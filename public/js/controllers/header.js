@@ -1,22 +1,15 @@
-(function(angular) {
-    'use strict';
+'use strict';
 
-    var HeaderController = [
-        '$scope', 'Global',
-        function ($scope, Global) {
-            $scope.global = Global;
+angular.module('mean.system').controller('HeaderController', ['$scope', 'Global', function ($scope, Global) {
+    $scope.global = Global;
 
-            $scope.menu = [{
-                'title': 'Articles',
-                'link': 'articles'
-            }, {
-                'title': 'Create New Article',
-                'link': 'articles/create'
-            }];
-
-            $scope.isCollapsed = false;
-        }
-    ];
-
-    angular.module('startupwichita.controllers').controller('HeaderController', HeaderController);
-})(window.angular);
+    $scope.menu = [{
+        'title': 'Articles',
+        'link': 'articles'
+    }, {
+        'title': 'Create New Article',
+        'link': 'articles/create'
+    }];
+    
+    $scope.isCollapsed = false;
+}]);
