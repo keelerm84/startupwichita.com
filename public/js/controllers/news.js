@@ -2,15 +2,21 @@
     'use strict';
 
     var NewsController = [
-        '$scope', '$stateParams', '$location', 'Global', 'News',
-        function ($scope, $stateParams, $location, Global, News) {
+        '$scope', '$stateParams', '$location', 'Global', 'News', 'Tags',
+        function ($scope, $stateParams, $location, Global, News, Tags) {
+            $scope.tagOptions = Tags.query();
+
             $scope.global = Global;
+            $scope.newNews = {};
 
             $scope.create = function() {
                 var newsItem = new News({
-                    title: this.title,
-                    content: this.content,
-                    url: this.url,
+                    title: $scope.newNews.title,
+                    content: $scope.newNews.content,
+                    url: $scope.newNews.url,
+                    tags: $scope.newNews.tags.map(function(tag) {
+                        return tag.name;
+                    }),
                     author: $scope.global.user._id
                 });
 

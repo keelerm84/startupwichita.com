@@ -42,6 +42,7 @@ TagSchema.statics.findOrCreate = function (name, cb) {
     Tag.findOne({name_upper: name.toUpperCase()}, function(err, tag) {
         if (!tag) {
             tag = new Tag({ name: name });
+            return tag.save(function(err) { cb(err, tag); });
         }
         cb(err, tag);
     });

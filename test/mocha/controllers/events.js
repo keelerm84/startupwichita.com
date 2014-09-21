@@ -31,7 +31,7 @@ describe('Event routing', function() {
             tag_bar = new Tag({name: 'bar'});
         tag_foo.save();
         tag_bar.save();
-        var tags = [tag_foo.id, tag_bar.id];
+        var tags = [tag_foo.name, tag_bar.name];
 
         var author = new User({
             name: 'Some author',
@@ -76,6 +76,9 @@ describe('Event routing', function() {
                 persistedEvent = res.body;
                 should.exist(persistedEvent.created_at);
                 author._id.toString().should.be.eql(persistedEvent.author);
+
+                console.log(persistedEvent);
+
                 tags.should.be.eql(persistedEvent.tags);
                 done();
             });

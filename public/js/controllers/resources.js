@@ -2,17 +2,22 @@
     'use strict';
 
     var ResourcesController = [
-        '$scope', '$stateParams', '$location', 'Global', 'Resources',
-        function ($scope, $stateParams, $location, Global, Resources) {
+        '$scope', '$stateParams', '$location', 'Global', 'Resources', 'Tags',
+        function ($scope, $stateParams, $location, Global, Resources, Tags) {
+            $scope.tagOptions = Tags.query();
+
             $scope.global = Global;
+            $scope.newResource = {};
 
             $scope.create = function() {
                 var resource = new Resources({
-                    title: this.title,
-                    content: this.content,
-                    tags: this.tags,
-                    url: this.url,
-                    image: this.image
+                    title: $scope.newResource.title,
+                    content: $scope.newResource.content,
+                    tags: $scope.newResource.tags.map(function(tag) {
+                        return tag.name;
+                    }),
+                    url: $scope.newResource.url,
+                    image: $scope.newResource.image
                 });
                 resource.$save(function(response) {
                     $location.path('resources/' + response._id);

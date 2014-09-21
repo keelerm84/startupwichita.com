@@ -25,13 +25,22 @@ exports.resource = function(req, res, next, _id) {
  * Create a resource
  */
 exports.create = function(req, res) {
-    var resource = new Resource(req.body);
+    var body = JSON.parse(JSON.stringify(req.body));
+    delete body.tags;
 
-    resource.save(function(err) {
+    var resource = new Resource(body);
+
+    resource.setTags(req.body.tags, function (err) {
         if (err) {
             res.send(500, { errors: err.errors, resource: resource });
         } else {
-            res.jsonp(201, resource);
+            resource.save(function(err) {
+                if (err) {
+                    res.send(500, { errors: err.errors, resource: resource });
+                } else {
+                    res.jsonp(201, resource);
+                }
+            });
         }
     });
 };

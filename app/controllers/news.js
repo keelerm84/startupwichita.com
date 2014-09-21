@@ -27,13 +27,22 @@ exports.newsItem = function(req, res, next, _id) {
  * Create a newsItem
  */
 exports.create = function(req, res) {
-    var newsItem = new News(req.body);
+    var body = JSON.parse(JSON.stringify(req.body));
+    delete body.tags;
 
-    newsItem.save(function(err) {
+    var newsItem = new News(body);
+
+    newsItem.setTags(req.body.tags, function (err) {
         if (err) {
             res.send(500, { errors: err.errors, newsItem: newsItem });
         } else {
-            res.jsonp(201, newsItem);
+            newsItem.save(function(err) {
+                if (err) {
+                    res.send(500, { errors: err.errors, newsItem: newsItem });
+                } else {
+                    res.jsonp(201, newsItem);
+                }
+            });
         }
     });
 };

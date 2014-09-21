@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
     Event = mongoose.model('Event'),
+    Tag = mongoose.model('Tag'),
     _ = require('lodash'),
     Feed = require('feed');
 
@@ -13,11 +14,30 @@ var mongoose = require('mongoose'),
  * Find event by _id
  */
 exports.event = function(req, res, next, _id) {
+    Topic.aggregate({ $project: { tags: 1, _id: 0 }})
+    .unwind('tags')
+    .group({ _id: "$tags" })
+    .exec(function(err, results) {
+      console.log(err);
+      console.log(results);
+    });
     Event.findOne({ _id: _id }, function(err, event) {
         if (err) return next(err);
         if (!event) return next(new Error('Failed to find event ' + _id));
-        req.event = event;
-        next();
+
+        Tag.find({ _id: { '$in': event.tags }}, function(err, tags) {
+            if (err) return next(err);
+
+            var formattedEvent = JSON.parse(JSON.stringify(event));
+
+            formattedEvent.tags = tags.map(function(tag) {
+                return tag.name;
+            });
+
+            req.event = formattedEvent;
+
+            next();
+        });
     });
 };
 
@@ -25,13 +45,23 @@ exports.event = function(req, res, next, _id) {
  * Create an event
  */
 exports.create = function(req, res) {
-    var event = new Event(req.body);
+    var body = JSON.parse(JSON.stringify(req.body));
+    delete body.tags;
 
-    event.save(function(err) {
+    var event = new Event(body);
+
+    event.setTags(req.body.tags, function (err) {
         if (err) {
             res.send(500, { errors: err.errors, event: event });
         } else {
-            res.jsonp(201, event);
+            event.save(function(error) {
+                if (error) {
+                    res.send(500, { errors: error.errors, event: event });
+                } else {
+                    event.tags = req.body.tags;
+                    res.jsonp(201, event);
+                }
+            });
         }
     });
 };
@@ -40,17 +70,32 @@ exports.create = function(req, res) {
  * Update an event
  */
 exports.update = function(req, res) {
-    var event = req.event;
 
-    event = _.extend(event, req.body);
-
-    event.save(function(err) {
+    Event.findOne({ _id: req.body._id }, function(err, event) {
         if (err) {
-            res.send(500, { errors: err.errors, event: event });
-        } else {
-            res.jsonp(event);
+            return res.send(500, { errors: err.errors, event: event });
         }
+
+        var body = JSON.parse(JSON.stringify(req.body));
+        delete body.tags;
+
+        event = _.extend(event, body);
+
+        event.setTags(req.body.tags, function (err) {
+            if (err) {
+                res.send(500, { errors: err.errors, event: event });
+            } else {
+                event.save(function(error) {
+                    if (error) {
+                        res.send(500, { errors: error.errors, event: event });
+                    } else {
+                        res.jsonp(201, event);
+                    }
+                });
+            }
+        });
     });
+
 };
 
 /**
